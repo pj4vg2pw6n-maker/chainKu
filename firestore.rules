@@ -1,0 +1,33 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // haikus collection: clients may read, never write
+    match /haikus/{haikuId} {
+      allow read: if true;
+      allow write: if false;
+
+      // proposals subcollection: no client access at all
+      match /proposals/{proposalId} {
+        allow read, write: if false;
+      }
+    }
+
+    // global config: clients may read
+    match /config/global {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // rate_limits: no client access
+    match /rate_limits/{key} {
+      allow read, write: if false;
+    }
+
+    // deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

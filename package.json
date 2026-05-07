@@ -1,0 +1,11 @@
+{
+  "name": "chainku",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter web build",
+    "dev": "pnpm --filter web dev",
+    "lint": "pnpm --filter web lint && pnpm --filter functions lint",
+    "typecheck": "pnpm --filter web typecheck && pnpm --filter functions typecheck && pnpm --filter shared typecheck",
+    "emulators": "firebase emulators:start"
+  }
+}

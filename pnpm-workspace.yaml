@@ -1,0 +1,7 @@
+packages:
+  - "apps/*"
+  - "functions"
+  - "packages/*"
+allowBuilds:
+  protobufjs: true
+  unrs-resolver: true
