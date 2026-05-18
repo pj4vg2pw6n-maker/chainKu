@@ -17,24 +17,30 @@ export const line23Schema = z
     `Line must be at most ${CONFIG_DEFAULTS.maxLine23Length} characters.`
   );
 
+const callerUuidSchema = z.string().uuid("callerUuid must be a valid UUID.");
+
 export const createHaikuInputSchema = z.object({
   line1Text: line1Schema,
   turnstileToken: z.string().min(1, "Turnstile token is required."),
+  callerUuid: callerUuidSchema,
 });
 
 export const submitProposalInputSchema = z.object({
   haikuId: z.string().min(1, "Haiku ID is required."),
   text: line23Schema,
   turnstileToken: z.string().min(1, "Turnstile token is required."),
+  callerUuid: callerUuidSchema,
 });
 
 export const chooseProposalInputSchema = z.object({
   haikuId: z.string().min(1, "Haiku ID is required."),
   proposalId: z.string().min(1, "Proposal ID is required."),
+  callerUuid: callerUuidSchema,
 });
 
 export const getProposalsForChoiceInputSchema = z.object({
   haikuId: z.string().min(1, "Haiku ID is required."),
+  callerUuid: callerUuidSchema,
 });
 
 export type CreateHaikuInput = z.infer<typeof createHaikuInputSchema>;
