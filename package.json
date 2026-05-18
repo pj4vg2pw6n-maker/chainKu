@@ -2,10 +2,12 @@
   "name": "chainku",
   "private": true,
   "scripts": {
-    "build": "pnpm --filter web build",
+    "build:shared": "pnpm --filter @chainku/shared build",
+    "build": "pnpm run build:shared && pnpm --filter web build",
+    "build:functions": "pnpm run build:shared && pnpm --filter functions build",
     "dev": "pnpm --filter web dev",
     "lint": "pnpm --filter web lint && pnpm --filter functions lint",
-    "typecheck": "pnpm --filter web typecheck && pnpm --filter functions typecheck && pnpm --filter shared typecheck",
-    "emulators": "firebase emulators:start"
+    "typecheck": "pnpm --filter web typecheck && pnpm --filter functions typecheck && pnpm --filter @chainku/shared typecheck",
+    "emulators": "pnpm run build:shared && firebase emulators:start"
   }
 }
