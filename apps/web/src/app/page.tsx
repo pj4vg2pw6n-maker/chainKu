@@ -1,10 +1,12 @@
+import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
+
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-4 p-8">
-      <h1 className="font-sans font-semibold text-2xl tracking-tight">ChainKu</h1>
-      <p className="font-serif text-lg text-[#6B7280]">
-        Collaborative haiku writing. Coming soon.
+    <div className="max-w-2xl mx-auto px-4 py-16">
+      <p className="font-serif text-lg text-gray-muted text-center">
+        The haiku feed lives here.
       </p>
-    </main>
+      <FloatingActionButton href="/create" label="Start a new haiku" />
+    </div>
   );
 }
