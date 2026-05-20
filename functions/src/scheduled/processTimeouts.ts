@@ -1,6 +1,7 @@
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
-import { admin, db } from "../lib/admin";
+import { db } from "../lib/admin";
+import { Timestamp } from "firebase-admin/firestore";
 import { COLLECTIONS, CONFIG_DEFAULTS } from "../lib/constants";
 
 async function deleteProposals(
@@ -34,7 +35,7 @@ async function processHaiku(
 
     const haiku = haikuSnap.data()!;
     const status: string = haiku.status;
-    const now = admin.firestore.Timestamp.now();
+    const now = Timestamp.now();
 
     // Idempotency guards — re-check inside the transaction
     if (haiku.currentDeadline.toMillis() > now.toMillis()) return false;
@@ -62,7 +63,7 @@ async function processHaiku(
       // Advance to choice phase
       const nextStatus =
         status === "awaiting_line_2" ? "awaiting_choice_2" : "awaiting_choice_3";
-      const deadline = admin.firestore.Timestamp.fromMillis(
+      const deadline = Timestamp.fromMillis(
         now.toMillis() + CONFIG_DEFAULTS.choiceWindowHours * 60 * 60 * 1000
       );
       tx.update(haikuRef, {
@@ -108,7 +109,7 @@ async function processHaiku(
 
     if (isLine2) {
       update.status = "awaiting_line_3";
-      update.currentDeadline = admin.firestore.Timestamp.fromMillis(
+      update.currentDeadline = Timestamp.fromMillis(
         now.toMillis() + CONFIG_DEFAULTS.proposalWindowHours * 60 * 60 * 1000
       );
     } else {
@@ -134,7 +135,7 @@ async function processHaiku(
 }
 
 export const processTimeouts = onSchedule("every 5 minutes", async () => {
-  const now = admin.firestore.Timestamp.now();
+  const now = Timestamp.now();
 
   const snap = await db
     .collection(COLLECTIONS.haikus)

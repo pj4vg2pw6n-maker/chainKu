@@ -1,6 +1,7 @@
 import { onCall, CallableRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import { admin, db } from "../lib/admin";
+import { db } from "../lib/admin";
+import { Timestamp } from "firebase-admin/firestore";
 import { COLLECTIONS, CONFIG_DEFAULTS, createHaikuInputSchema } from "../lib/constants";
 import { requireAppCheck } from "../lib/appCheck";
 import { verifyTurnstile } from "../lib/turnstile";
@@ -33,8 +34,8 @@ export const createHaiku = onCall(async (request) => {
 
   logger.info("step: firestoreWrite");
 
-  const now = admin.firestore.Timestamp.now();
-  const deadline = admin.firestore.Timestamp.fromMillis(
+  const now = Timestamp.now();
+  const deadline = Timestamp.fromMillis(
     now.toMillis() + CONFIG_DEFAULTS.proposalWindowHours * 60 * 60 * 1000
   );
 

@@ -1,6 +1,7 @@
 import * as logger from "firebase-functions/logger";
 import { HttpsError } from "firebase-functions/v2/https";
-import { admin, db } from "./admin";
+import { db } from "./admin";
+import { Timestamp, FieldValue } from "firebase-admin/firestore";
 import { COLLECTIONS, RATE_LIMIT_MAX, RateLimitAction } from "./constants";
 
 /** Returns the current UTC hour slot as "YYYYMMDDHH". */
@@ -27,7 +28,7 @@ async function checkAndIncrement(key: string, limit: number): Promise<boolean> {
     const snap = await tx.get(ref);
 
     if (!snap.exists) {
-      const expiresAt = admin.firestore.Timestamp.fromMillis(
+      const expiresAt = Timestamp.fromMillis(
         Date.now() + 2 * 60 * 60 * 1000
       );
       tx.set(ref, { key, count: 1, expiresAt });
@@ -37,7 +38,7 @@ async function checkAndIncrement(key: string, limit: number): Promise<boolean> {
     const data = snap.data();
     if (!data || data.count >= limit) return false;
 
-    tx.update(ref, { count: admin.firestore.FieldValue.increment(1) });
+    tx.update(ref, { count: FieldValue.increment(1) });
     return true;
   });
 }
@@ -51,6 +52,9 @@ export async function enforceRateLimit(
   ip: string,
   uuid: string
 ): Promise<void> {
+  // Rate limiting is a production safeguard; skip it in the local emulator
+  if (process.env.FUNCTIONS_EMULATOR === "true") return;
+
   const limit = RATE_LIMIT_MAX[action];
   const slot = hourSlot();
 

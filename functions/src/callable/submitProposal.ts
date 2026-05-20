@@ -1,6 +1,7 @@
 import { onCall, CallableRequest, HttpsError } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import { admin, db } from "../lib/admin";
+import { db } from "../lib/admin";
+import { Timestamp } from "firebase-admin/firestore";
 import { COLLECTIONS, CONFIG_DEFAULTS, submitProposalInputSchema } from "../lib/constants";
 import { requireAppCheck } from "../lib/appCheck";
 import { verifyTurnstile } from "../lib/turnstile";
@@ -80,7 +81,7 @@ export const submitProposal = onCall(async (request) => {
     }
 
     const newCount: number = haiku.proposalCount + 1;
-    const now = admin.firestore.Timestamp.now();
+    const now = Timestamp.now();
 
     const proposalRef = proposalsRef.doc();
     tx.set(proposalRef, {
@@ -100,7 +101,7 @@ export const submitProposal = onCall(async (request) => {
     if (newCount >= maxProposals) {
       const nextStatus = forLine === 2 ? "awaiting_choice_2" : "awaiting_choice_3";
       update.status = nextStatus;
-      update.currentDeadline = admin.firestore.Timestamp.fromMillis(
+      update.currentDeadline = Timestamp.fromMillis(
         now.toMillis() + CONFIG_DEFAULTS.choiceWindowHours * 60 * 60 * 1000
       );
       logger.info("submitProposal: max proposals reached, closing early", {

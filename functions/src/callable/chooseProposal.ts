@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import { admin, db } from "../lib/admin";
+import { db } from "../lib/admin";
+import { Timestamp } from "firebase-admin/firestore";
 import { COLLECTIONS, CONFIG_DEFAULTS, chooseProposalInputSchema } from "../lib/constants";
 import { requireAppCheck } from "../lib/appCheck";
 import { parseInput } from "../lib/validation";
@@ -59,7 +60,7 @@ export const chooseProposal = onCall(async (request) => {
     }
 
     const proposal = proposalSnap.data()!;
-    const now = admin.firestore.Timestamp.now();
+    const now = Timestamp.now();
     const isLine2 = status === "awaiting_choice_2";
 
     const canonicalLine = {
@@ -77,7 +78,7 @@ export const chooseProposal = onCall(async (request) => {
 
     if (isLine2) {
       update.status = "awaiting_line_3";
-      update.currentDeadline = admin.firestore.Timestamp.fromMillis(
+      update.currentDeadline = Timestamp.fromMillis(
         now.toMillis() + CONFIG_DEFAULTS.proposalWindowHours * 60 * 60 * 1000
       );
     } else {
