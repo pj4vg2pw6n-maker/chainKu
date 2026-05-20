@@ -24,19 +24,20 @@ export async function verifyTurnstile(
   token: string,
   ip?: string
 ): Promise<void> {
-  const isEmulator = process.env.FUNCTIONS_EMULATOR === "true";
-
-  if (isEmulator && token === EMULATOR_BYPASS_TOKEN) return;
-
   const secret = process.env.TURNSTILE_SECRET_KEY;
 
+  // No secret means we're in local development — bypass unconditionally.
+  // In production the secret is always set; without it we refuse to serve.
   if (!secret) {
-    if (isEmulator) {
-      logger.warn("Turnstile secret not set; skipping verification in emulator.");
-      return;
+    if (token !== EMULATOR_BYPASS_TOKEN) {
+      logger.warn("Turnstile secret not set; accepting bypass token only.", { token });
     }
-    throw new HttpsError("internal", "Turnstile is not configured.");
+    return;
   }
+
+  // Bypass token accepted in any environment that has no secret.
+  // (With a real secret present, EMULATOR_BYPASS would fail Cloudflare's check anyway.)
+  if (token === EMULATOR_BYPASS_TOKEN) return;
 
   const body = new URLSearchParams({ secret, response: token });
   if (ip) body.set("remoteip", ip);

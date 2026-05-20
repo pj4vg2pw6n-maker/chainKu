@@ -14,8 +14,10 @@ function clientIp(request: CallableRequest): string {
 }
 
 export const createHaiku = onCall(async (request) => {
+  logger.info("step: appCheck");
   requireAppCheck(request);
 
+  logger.info("step: parseInput", { data: JSON.stringify(request.data) });
   const { line1Text, turnstileToken, callerUuid } = parseInput(
     createHaikuInputSchema,
     request.data
@@ -23,8 +25,13 @@ export const createHaiku = onCall(async (request) => {
 
   const ip = clientIp(request);
 
+  logger.info("step: turnstile", { ip, token: turnstileToken });
   await verifyTurnstile(turnstileToken, ip);
+
+  logger.info("step: rateLimit");
   await enforceRateLimit("createHaiku", ip, callerUuid);
+
+  logger.info("step: firestoreWrite");
 
   const now = admin.firestore.Timestamp.now();
   const deadline = admin.firestore.Timestamp.fromMillis(

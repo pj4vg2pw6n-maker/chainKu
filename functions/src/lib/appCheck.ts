@@ -8,9 +8,9 @@ import { CallableRequest, HttpsError } from "firebase-functions/v2/https";
  * does not enforce App Check, so this check is a no-op there.
  */
 export function requireAppCheck(request: CallableRequest): void {
-  if (process.env.FUNCTIONS_EMULATOR === "true") return;
-
-  if (!request.app) {
+  // request.app is null in the local emulator (no App Check token issued).
+  // Only enforce in production where App Check is configured.
+  if (!request.app && process.env.FUNCTIONS_EMULATOR !== "true") {
     throw new HttpsError(
       "failed-precondition",
       "This function must be called from a verified app."

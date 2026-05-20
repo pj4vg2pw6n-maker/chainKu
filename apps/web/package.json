@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@chainku/shared": "workspace:*",
+    "@marsidev/react-turnstile": "^1.5.2",
     "@tanstack/react-query": "^5.100.10",
     "firebase": "^10.14.1",
     "next": "14.2.35",

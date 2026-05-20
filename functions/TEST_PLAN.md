@@ -173,10 +173,15 @@ Or wait for the emulator's built-in scheduler to fire.
 
 ## 6. `onProposalCreated`
 
-This trigger is logging-only.
+> **Note:** This trigger is disabled in local development due to a Firebase emulator
+> bug (firebase/firebase-tools#2633) where Firestore trigger registration fails with
+> HTTP 503. The export is commented out in `functions/src/index.ts`. It is
+> re-enabled before production deployment.
 
-1. Submit a proposal (any happy-path flow from test 2 above).
-2. Check the Functions emulator log output.
+This trigger is logging-only. Test in production (or a deployed staging environment):
+
+1. Submit a proposal via `submitProposal`.
+2. Check Cloud Functions logs in the Firebase Console.
 3. Verify a log line appears with `haikuId`, `proposalId`, and `forLine`.
 
 No error cases to test — the trigger never throws.

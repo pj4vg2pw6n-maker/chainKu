@@ -33,7 +33,7 @@
     "hosting": {
       "port": 5000
     },
-    "ui": {
+"ui": {
       "enabled": true,
       "port": 4000
     },
