@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,9 +12,25 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+const USE_EMULATOR = process.env.NEXT_PUBLIC_USE_EMULATOR === "true";
+
 if (getApps().length === 0) {
   const newApp = initializeApp(firebaseConfig);
-  if (process.env.NEXT_PUBLIC_USE_EMULATOR === "true") {
+
+  // App Check with reCAPTCHA Enterprise: only in browser, only outside emulator.
+  // In the emulator, App Check tokens are never issued and requireAppCheck() skips
+  // enforcement (FUNCTIONS_EMULATOR=true), so we don't initialize here.
+  if (!USE_EMULATOR && typeof window !== "undefined") {
+    const recaptchaKey = process.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_RECAPTCHA_KEY;
+    if (recaptchaKey) {
+      initializeAppCheck(newApp, {
+        provider: new ReCaptchaEnterpriseProvider(recaptchaKey),
+        isTokenAutoRefreshEnabled: true,
+      });
+    }
+  }
+
+  if (USE_EMULATOR) {
     connectFirestoreEmulator(getFirestore(newApp), "127.0.0.1", 8080);
     connectFunctionsEmulator(getFunctions(newApp), "127.0.0.1", 5001);
   }

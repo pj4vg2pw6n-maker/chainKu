@@ -33,6 +33,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Establish early connections to Firebase and reCAPTCHA Enterprise origins */}
+        <link rel="preconnect" href="https://firestore.googleapis.com" />
+        <link rel="dns-prefetch" href="https://www.gstatic.com" />
+        <link rel="preconnect" href="https://www.google.com" crossOrigin="anonymous" />
+      </head>
       <body
         className={`${inter.variable} ${newsreader.variable} font-sans antialiased bg-white text-[#111111]`}
       >

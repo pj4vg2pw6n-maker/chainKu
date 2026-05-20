@@ -7,6 +7,7 @@ import { requireAppCheck } from "../lib/appCheck";
 import { verifyTurnstile } from "../lib/turnstile";
 import { enforceRateLimit } from "../lib/rateLimit";
 import { parseInput } from "../lib/validation";
+import { turnstileSecretKey } from "../lib/params";
 
 function clientIp(request: CallableRequest): string {
   const forwarded = request.rawRequest.headers["x-forwarded-for"];
@@ -14,7 +15,7 @@ function clientIp(request: CallableRequest): string {
   return request.rawRequest.ip ?? "unknown";
 }
 
-export const createHaiku = onCall(async (request) => {
+export const createHaiku = onCall({ secrets: [turnstileSecretKey] }, async (request) => {
   logger.info("step: appCheck");
   requireAppCheck(request);
 
