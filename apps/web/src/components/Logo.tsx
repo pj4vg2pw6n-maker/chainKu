@@ -4,7 +4,7 @@ export function Logo() {
   return (
     <Link
       href="/"
-      className="flex items-center gap-2.5 text-[#111111] hover:text-accent transition-colors duration-150 no-underline"
+      className="flex items-center gap-2.5 text-[#111111] hover:text-accent transition-colors duration-150 no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
     >
       {/* Three connected circles: smaller outer circles evoke 5-7-5 syllable structure */}
       <svg

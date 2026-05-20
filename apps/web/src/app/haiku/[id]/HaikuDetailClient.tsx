@@ -218,8 +218,13 @@ export function HaikuDetailClient() {
 
   if (isLoading) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-12">
-        <p className="text-sm text-gray-muted">Loading…</p>
+      <div className="max-w-xl mx-auto px-4 py-12 animate-pulse">
+        <div className="flex flex-col gap-2 mb-10">
+          <div className="h-8 bg-gray-100 rounded w-3/4" />
+          <div className="h-8 bg-gray-100 rounded w-1/2" />
+          <div className="h-8 bg-gray-100 rounded w-2/3" />
+        </div>
+        <div className="h-4 bg-gray-100 rounded w-1/3" />
       </div>
     );
   }

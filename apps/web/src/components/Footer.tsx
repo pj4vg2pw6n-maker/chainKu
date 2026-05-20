@@ -6,13 +6,13 @@ export function Footer() {
       <div className="max-w-2xl mx-auto px-4 py-6 flex gap-6 text-sm text-gray-ui">
         <Link
           href="/privacy"
-          className="hover:text-accent transition-colors duration-150"
+          className="hover:text-accent transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
         >
           Privacy policy
         </Link>
         <Link
           href="/contact"
-          className="hover:text-accent transition-colors duration-150"
+          className="hover:text-accent transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
         >
           Contact
         </Link>
