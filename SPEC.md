@@ -331,6 +331,7 @@ Composite indexes required (declared in `firestore.indexes.json`):
 
 - `haikus`: `status` ASC + `updatedAt` DESC (for "in progress, most recent activity")
 - `haikus`: `status` ASC + `completedAt` DESC (for "archive, most recent")
+- `haikus`: `status` ASC + `currentDeadline` ASC (for `processTimeouts` — filters to non-terminal haiku with expired deadlines)
 
 ### 4.5 Cloud Functions
 

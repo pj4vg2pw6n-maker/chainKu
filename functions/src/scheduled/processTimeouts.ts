@@ -138,6 +138,12 @@ export const processTimeouts = onSchedule("every 5 minutes", async () => {
 
   const snap = await db
     .collection(COLLECTIONS.haikus)
+    .where("status", "in", [
+      "awaiting_line_2",
+      "awaiting_choice_2",
+      "awaiting_line_3",
+      "awaiting_choice_3",
+    ])
     .where("currentDeadline", "<", now)
     .get();
 
