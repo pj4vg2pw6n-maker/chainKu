@@ -53,4 +53,6 @@ jobs:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
       - name: Deploy to Firebase
-        run: npx --yes firebase-tools@latest deploy --only hosting,functions,firestore:rules,firestore:indexes --project chainku
+        # Pinned to a known-good major to avoid silent supply-chain risk from
+        # `@latest`. Review and bump deliberately when upgrading.
+        run: npx --yes firebase-tools@13 deploy --only hosting,functions,firestore:rules,firestore:indexes --project chainku

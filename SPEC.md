@@ -83,6 +83,7 @@ All configurable via `config/global` document in Firestore.
 - A proposer cannot withdraw or modify their proposal once submitted (v1.0 simplification).
 - A proposer cannot see other proposals or their count.
 - After the proposal window closes, all proposals (except the chosen one) are deleted to save storage.
+- The proposer's anonymous UUID (`authorId`) lives only in the private `proposals` subcollection (no client read access) and is **never copied onto the canonical line**. Once a proposal is chosen and promoted, only its `text` survives on the public `haikus` document — the contributor's UUID is deleted along with the rest of the proposals subcollection. Accepted contributions are therefore unlinkable across haiku from any public read.
 
 ### 2.4 Choice
 
@@ -273,9 +274,9 @@ chainku/
   language: 'en';                // v1.0: always 'en'
   initiatorId: string;           // anonymous UUID
   
-  line1: { text: string; authorId: string; createdAt: Timestamp; };
-  line2: { text: string; authorId: string; chosenAt: Timestamp; chosenBy: 'initiator' | 'random'; } | null;
-  line3: { text: string; authorId: string; chosenAt: Timestamp; chosenBy: 'initiator' | 'random'; } | null;
+  line1: { text: string; createdAt: Timestamp; };
+  line2: { text: string; chosenAt: Timestamp; chosenBy: 'initiator' | 'random'; } | null;
+  line3: { text: string; chosenAt: Timestamp; chosenBy: 'initiator' | 'random'; } | null;
   
   currentDeadline: Timestamp;    // deadline of current state
   proposalCount: number;         // denormalized, current window only

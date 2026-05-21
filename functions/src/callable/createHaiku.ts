@@ -1,4 +1,4 @@
-import { onCall, CallableRequest } from "firebase-functions/v2/https";
+import { onCall } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import { db } from "../lib/admin";
 import { Timestamp } from "firebase-admin/firestore";
@@ -9,14 +9,9 @@ import { enforceRateLimit } from "../lib/rateLimit";
 import { parseInput } from "../lib/validation";
 import { turnstileSecretKey } from "../lib/params";
 import { getConfig } from "../lib/config";
+import { clientIp } from "../lib/clientIp";
 
-function clientIp(request: CallableRequest): string {
-  const forwarded = request.rawRequest.headers["x-forwarded-for"];
-  if (typeof forwarded === "string") return forwarded.split(",")[0].trim();
-  return request.rawRequest.ip ?? "unknown";
-}
-
-export const createHaiku = onCall({ secrets: [turnstileSecretKey] }, async (request) => {
+export const createHaiku = onCall({ secrets: [turnstileSecretKey], maxInstances: 10 }, async (request) => {
   logger.info("step: appCheck");
   requireAppCheck(request);
 
@@ -51,7 +46,6 @@ export const createHaiku = onCall({ secrets: [turnstileSecretKey] }, async (requ
     initiatorId: callerUuid,
     line1: {
       text: line1Text,
-      authorId: callerUuid,
       createdAt: now,
     },
     line2: null,

@@ -5,6 +5,7 @@ import {
   query,
   where,
   orderBy,
+  limit,
   getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -17,6 +18,10 @@ const IN_PROGRESS_STATUSES = [
   "awaiting_choice_3",
 ] as const;
 
+// Cap reads per fetch so an unbounded archive cannot drive Firestore cost on
+// every page load (and cannot be amplified by hostile direct-SDK calls).
+const LIST_LIMIT = 50;
+
 export function useInProgressHaiku() {
   return useQuery({
     queryKey: ["haiku-list", "in-progress"],
@@ -24,7 +29,8 @@ export function useInProgressHaiku() {
       const q = query(
         collection(db, "haikus"),
         where("status", "in", [...IN_PROGRESS_STATUSES]),
-        orderBy("updatedAt", "desc")
+        orderBy("updatedAt", "desc"),
+        limit(LIST_LIMIT)
       );
       const snap = await getDocs(q);
       const haiku = snap.docs.map(
@@ -46,7 +52,8 @@ export function useArchivedHaiku() {
       const q = query(
         collection(db, "haikus"),
         where("status", "==", "completed"),
-        orderBy("completedAt", "desc")
+        orderBy("completedAt", "desc"),
+        limit(LIST_LIMIT)
       );
       const snap = await getDocs(q);
       return snap.docs.map(

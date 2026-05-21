@@ -1,16 +1,11 @@
-import { onCall, CallableRequest, HttpsError } from "firebase-functions/v2/https";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import { db } from "../lib/admin";
 import { COLLECTIONS, getProposalsForChoiceInputSchema } from "../lib/constants";
 import { requireAppCheck } from "../lib/appCheck";
 import { enforceRateLimit } from "../lib/rateLimit";
 import { parseInput } from "../lib/validation";
-
-function clientIp(request: CallableRequest): string {
-  const forwarded = request.rawRequest.headers["x-forwarded-for"];
-  if (typeof forwarded === "string") return forwarded.split(",")[0].trim();
-  return request.rawRequest.ip ?? "unknown";
-}
+import { clientIp } from "../lib/clientIp";
 
 function shuffle<T>(arr: T[]): T[] {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -20,7 +15,7 @@ function shuffle<T>(arr: T[]): T[] {
   return arr;
 }
 
-export const getProposalsForChoice = onCall(async (request) => {
+export const getProposalsForChoice = onCall({ maxInstances: 10 }, async (request) => {
   requireAppCheck(request);
 
   const { haikuId, callerUuid } = parseInput(

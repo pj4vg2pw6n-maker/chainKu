@@ -67,6 +67,17 @@ App Check protects all callable Cloud Functions from abuse.
 6. Click **Save**.
 7. Set enforcement mode to **Enforced** once you've confirmed the app works (start with **Monitoring** for the first deploy to avoid locking yourself out).
 
+### 2c. Enable App Check enforcement for Cloud Firestore
+
+App Check is configured per-API. Enabling it for callable Cloud Functions does **not** enforce it on direct Firestore reads — and ChainKu's security model relies on those direct reads being protected (the `haikus` collection is publicly readable by rule, so without App Check on Firestore an attacker can bypass all Cloud-Function rate limits and hammer Firestore directly, driving up read costs).
+
+1. In Firebase Console → **App Check → APIs** tab.
+2. Find **Cloud Firestore** in the list and click it.
+3. Start in **Monitoring** mode for 24–48 h to confirm legitimate traffic carries valid App Check tokens (the SDK obtains them automatically once `initializeAppCheck` is wired up in `apps/web/src/lib/firebase.ts`).
+4. Once Monitoring shows no false-negative rejections, switch enforcement to **Enforced**.
+
+Do the same for **Cloud Functions** in the same APIs tab.
+
 ---
 
 ## Step 3 — Configure Cloudflare Turnstile
@@ -120,6 +131,16 @@ gcloud firestore fields ttls update expiresAt \
 Or via the Firebase Console: **Firestore → Data → rate_limits → Field → expiresAt → Enable TTL**.
 
 Without this step, rate-limit documents accumulate indefinitely (functionally harmless since old hourly-slot keys are never queried, but storage grows unboundedly).
+
+### 5b. Set a GCP billing budget alert
+
+Blaze pricing is uncapped. A misconfiguration or hostile traffic spike (e.g. a script hammering public Firestore reads) can drive a real bill within hours. Set a budget alert so you are notified before things get out of hand.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/) → **Billing → Budgets & alerts → Create budget**.
+2. Scope: this Firebase project.
+3. Budget amount: start with $10/month — small enough to alert on any anomaly, easy to raise later.
+4. Threshold alerts: at 50%, 90%, and 100% of the budget. Send to your email and (recommended) to a Pub/Sub topic you can use for an automated billing-disable function down the line.
+5. (Optional, advanced) Wire the Pub/Sub topic to a Cloud Function that calls the Cloud Billing API to disable billing on the project if it ever crosses 100%. See [the official recipe](https://cloud.google.com/billing/docs/how-to/notify) — this is the only true cost cap available on GCP.
 
 ---
 
@@ -308,7 +329,8 @@ If the score is below 90, check:
 - [ ] Firestore TTL policy enabled on `rate_limits.expiresAt` (see Step 5a)
 - [ ] Firestore indexes built (check Firebase Console → Firestore → Indexes)
 - [ ] First deploy completed and smoke-tested (create → propose → choose → archive flow)
-- [ ] App Check switched from **Monitoring** to **Enforced** after confirming the app works
+- [ ] App Check switched from **Monitoring** to **Enforced** for both **Cloud Functions** and **Cloud Firestore** (Step 2b + 2c) after confirming the app works
+- [ ] GCP billing budget alert configured (Step 5b)
 - [ ] GitHub Actions secrets added (all 9 secrets listed in Step 7b)
 - [ ] Security audit completed (Firestore writes blocked, unauthenticated function calls blocked)
 - [ ] Lighthouse ≥ 90 Performance on home and detail pages

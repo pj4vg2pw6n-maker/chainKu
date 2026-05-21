@@ -16,15 +16,29 @@ export default function PrivacyPage() {
           <h2 className="font-sans font-semibold text-[#111111] mb-2">
             What we store
           </h2>
-          <p>
+          <p className="mb-3">
             ChainKu does not collect personal data, accounts, or email
             addresses. The only identifier used is an anonymous UUID generated
             in your browser and stored in{" "}
             <code className="text-xs bg-gray-50 border border-gray-border px-1 py-0.5 rounded">
               localStorage
             </code>
-            . This UUID is used to track authorship of haiku lines and to
-            enforce rate limits. It is never transmitted to third parties.
+            . It is sent to our backend only when you submit a haiku, a
+            proposal, or a choice, where it is used to (a) recognise you as the
+            initiator of haiku you started, (b) enforce &ldquo;one proposal per
+            user per line&rdquo;, and (c) apply rate limits. It is never shared
+            with third parties.
+          </p>
+          <p>
+            Your UUID is <strong>never publicly visible</strong>. For haiku
+            you initiate, it is stored on the haiku document as the initiator
+            identifier (used only by the server to authorise your choices); for
+            proposals you submit, it is stored in a private subcollection that
+            no client can read and is deleted once the proposal window closes.
+            When a proposal is accepted into the final haiku, only its text is
+            kept — the proposer&apos;s UUID is not. Accepted contributions
+            therefore cannot be linked back to you, or to each other, by anyone
+            reading the site.
           </p>
         </section>
 

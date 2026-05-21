@@ -5,6 +5,8 @@ import { Timestamp } from "firebase-admin/firestore";
 import { COLLECTIONS, CONFIG_DEFAULTS, chooseProposalInputSchema } from "../lib/constants";
 import { requireAppCheck } from "../lib/appCheck";
 import { parseInput } from "../lib/validation";
+import { enforceRateLimit } from "../lib/rateLimit";
+import { clientIp } from "../lib/clientIp";
 
 async function deleteProposals(
   proposalsRef: FirebaseFirestore.CollectionReference
@@ -16,13 +18,15 @@ async function deleteProposals(
   await batch.commit();
 }
 
-export const chooseProposal = onCall(async (request) => {
+export const chooseProposal = onCall({ maxInstances: 10 }, async (request) => {
   requireAppCheck(request);
 
   const { haikuId, proposalId, callerUuid } = parseInput(
     chooseProposalInputSchema,
     request.data
   );
+
+  await enforceRateLimit("chooseProposal", clientIp(request), callerUuid);
 
   const haikuRef = db.collection(COLLECTIONS.haikus).doc(haikuId);
   const proposalsRef = haikuRef.collection(COLLECTIONS.proposals);
@@ -63,9 +67,10 @@ export const chooseProposal = onCall(async (request) => {
     const now = Timestamp.now();
     const isLine2 = status === "awaiting_choice_2";
 
+    // authorId is intentionally omitted to keep accepted contributions fully
+    // anonymous on the publicly readable haiku document.
     const canonicalLine = {
       text: proposal.text as string,
-      authorId: proposal.authorId as string,
       chosenAt: now,
       chosenBy: "initiator" as const,
     };

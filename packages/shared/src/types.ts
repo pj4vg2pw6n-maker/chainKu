@@ -15,7 +15,6 @@ export type HaikuStatus =
 
 export interface CanonicalLine {
   text: string;
-  authorId: string;
   chosenAt: Timestamp;
   chosenBy: "initiator" | "random";
 }
@@ -28,7 +27,6 @@ export interface Haiku {
 
   line1: {
     text: string;
-    authorId: string;
     createdAt: Timestamp;
   };
   line2: CanonicalLine | null;

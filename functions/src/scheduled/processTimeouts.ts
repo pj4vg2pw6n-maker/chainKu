@@ -92,9 +92,10 @@ async function processHaiku(
     const chosen = pickRandom(proposalsSnap.docs);
     const chosenData = chosen.data();
     const isLine2 = status === "awaiting_choice_2";
+    // authorId is intentionally omitted to keep accepted contributions fully
+    // anonymous on the publicly readable haiku document.
     const canonicalLine = {
       text: chosenData.text as string,
-      authorId: chosenData.authorId as string,
       chosenAt: now,
       chosenBy: "random" as const,
     };

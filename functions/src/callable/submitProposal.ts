@@ -1,4 +1,4 @@
-import { onCall, CallableRequest, HttpsError } from "firebase-functions/v2/https";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import { db } from "../lib/admin";
 import { Timestamp } from "firebase-admin/firestore";
@@ -9,14 +9,9 @@ import { enforceRateLimit } from "../lib/rateLimit";
 import { parseInput } from "../lib/validation";
 import { turnstileSecretKey } from "../lib/params";
 import { getConfig } from "../lib/config";
+import { clientIp } from "../lib/clientIp";
 
-function clientIp(request: CallableRequest): string {
-  const forwarded = request.rawRequest.headers["x-forwarded-for"];
-  if (typeof forwarded === "string") return forwarded.split(",")[0].trim();
-  return request.rawRequest.ip ?? "unknown";
-}
-
-export const submitProposal = onCall({ secrets: [turnstileSecretKey] }, async (request) => {
+export const submitProposal = onCall({ secrets: [turnstileSecretKey], maxInstances: 10 }, async (request) => {
   requireAppCheck(request);
 
   const { haikuId, text, turnstileToken, callerUuid } = parseInput(

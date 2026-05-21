@@ -12,6 +12,7 @@ export const RATE_LIMIT_MAX = {
   createHaiku: 5,
   submitProposal: 30,
   getProposalsForChoice: 60,
+  chooseProposal: 60,
 } as const;
 
 export type RateLimitAction = keyof typeof RATE_LIMIT_MAX;
