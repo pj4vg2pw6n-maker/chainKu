@@ -2,12 +2,13 @@ import { onCall, CallableRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import { db } from "../lib/admin";
 import { Timestamp } from "firebase-admin/firestore";
-import { COLLECTIONS, CONFIG_DEFAULTS, createHaikuInputSchema } from "../lib/constants";
+import { COLLECTIONS, createHaikuInputSchema } from "../lib/constants";
 import { requireAppCheck } from "../lib/appCheck";
 import { verifyTurnstile } from "../lib/turnstile";
 import { enforceRateLimit } from "../lib/rateLimit";
 import { parseInput } from "../lib/validation";
 import { turnstileSecretKey } from "../lib/params";
+import { getConfig } from "../lib/config";
 
 function clientIp(request: CallableRequest): string {
   const forwarded = request.rawRequest.headers["x-forwarded-for"];
@@ -35,9 +36,10 @@ export const createHaiku = onCall({ secrets: [turnstileSecretKey] }, async (requ
 
   logger.info("step: firestoreWrite");
 
+  const config = await getConfig();
   const now = Timestamp.now();
   const deadline = Timestamp.fromMillis(
-    now.toMillis() + CONFIG_DEFAULTS.proposalWindowHours * 60 * 60 * 1000
+    now.toMillis() + config.proposalWindowHours * 60 * 60 * 1000
   );
 
   const docRef = db.collection(COLLECTIONS.haikus).doc();

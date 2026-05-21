@@ -2,7 +2,9 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
 import { db } from "../lib/admin";
 import { Timestamp } from "firebase-admin/firestore";
-import { COLLECTIONS, CONFIG_DEFAULTS } from "../lib/constants";
+import { GlobalConfig } from "@chainku/shared";
+import { COLLECTIONS } from "../lib/constants";
+import { getConfig } from "../lib/config";
 
 async function deleteProposals(
   proposalsRef: FirebaseFirestore.CollectionReference
@@ -18,13 +20,9 @@ function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-/**
- * Processes a single overdue haiku inside a transaction.
- * Returns true when proposals should be deleted after the transaction
- * (only the auto-pick case; the deletion case has an empty subcollection).
- */
 async function processHaiku(
-  haikuRef: FirebaseFirestore.DocumentReference
+  haikuRef: FirebaseFirestore.DocumentReference,
+  config: GlobalConfig
 ): Promise<boolean> {
   const proposalsRef = haikuRef.collection(COLLECTIONS.proposals);
 
@@ -64,7 +62,7 @@ async function processHaiku(
       const nextStatus =
         status === "awaiting_line_2" ? "awaiting_choice_2" : "awaiting_choice_3";
       const deadline = Timestamp.fromMillis(
-        now.toMillis() + CONFIG_DEFAULTS.choiceWindowHours * 60 * 60 * 1000
+        now.toMillis() + config.choiceWindowHours * 60 * 60 * 1000
       );
       tx.update(haikuRef, {
         status: nextStatus,
@@ -110,7 +108,7 @@ async function processHaiku(
     if (isLine2) {
       update.status = "awaiting_line_3";
       update.currentDeadline = Timestamp.fromMillis(
-        now.toMillis() + CONFIG_DEFAULTS.proposalWindowHours * 60 * 60 * 1000
+        now.toMillis() + config.proposalWindowHours * 60 * 60 * 1000
       );
     } else {
       update.status = "completed";
@@ -135,6 +133,7 @@ async function processHaiku(
 }
 
 export const processTimeouts = onSchedule("every 5 minutes", async () => {
+  const config = await getConfig();
   const now = Timestamp.now();
 
   const snap = await db
@@ -150,7 +149,7 @@ export const processTimeouts = onSchedule("every 5 minutes", async () => {
   logger.info(`processTimeouts: checking ${snap.size} haiku(s)`);
 
   const results = await Promise.allSettled(
-    snap.docs.map((doc) => processHaiku(doc.ref))
+    snap.docs.map((doc) => processHaiku(doc.ref, config))
   );
 
   const failures = results.filter((r) => r.status === "rejected");

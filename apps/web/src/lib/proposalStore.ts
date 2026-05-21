@@ -1,4 +1,6 @@
-const STORE_KEY = "chainku.proposals";
+import { LOCAL_STORAGE_KEYS } from "@chainku/shared";
+
+const STORE_KEY = LOCAL_STORAGE_KEYS.proposals;
 
 function load(): Record<string, number[]> {
   try {

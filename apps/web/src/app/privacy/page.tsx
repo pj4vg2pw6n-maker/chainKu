@@ -53,6 +53,19 @@ export default function PrivacyPage() {
               </code>{" "}
               — whether you have dismissed the welcome message.
             </li>
+            <li>
+              <code className="text-xs bg-gray-50 border border-gray-border px-1 py-0.5 rounded">
+                chainku.syllableCounterEnabled
+              </code>{" "}
+              — your syllable counter preference (on or off).
+            </li>
+            <li>
+              <code className="text-xs bg-gray-50 border border-gray-border px-1 py-0.5 rounded">
+                chainku.proposals
+              </code>{" "}
+              — a local record of which haiku lines you have proposed, used to
+              show you the correct status on the detail page.
+            </li>
           </ul>
         </section>
 
@@ -81,12 +94,57 @@ export default function PrivacyPage() {
 
         <section>
           <h2 className="font-sans font-semibold text-[#111111] mb-2">
-            Third-party services
+            Third-party services and data processors
           </h2>
-          <p>
+          <p className="mb-3">
             ChainKu does not use analytics, advertising, or social tracking of
-            any kind. The only third-party service is Cloudflare Turnstile.
+            any kind. The following third-party services are used as data
+            processors:
           </p>
+          <ul className="space-y-2 list-disc list-inside">
+            <li>
+              <strong>Cloudflare Turnstile</strong> — a privacy-friendly CAPTCHA
+              used on form submissions. Cloudflare&apos;s{" "}
+              <a
+                href="https://www.cloudflare.com/privacypolicy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:text-accent-light transition-colors duration-150 underline underline-offset-2"
+              >
+                privacy policy
+              </a>{" "}
+              governs their service.
+            </li>
+            <li>
+              <strong>Firebase / Google Cloud</strong> — the application backend
+              (Firestore database, Cloud Functions, Hosting) is operated by
+              Google Ireland Limited (EEA) / Google LLC (US). Content you submit
+              (haiku lines) is stored in Firestore. Google&apos;s{" "}
+              <a
+                href="https://firebase.google.com/support/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:text-accent-light transition-colors duration-150 underline underline-offset-2"
+              >
+                Firebase privacy information
+              </a>{" "}
+              applies.
+            </li>
+            <li>
+              <strong>Google reCAPTCHA Enterprise</strong> — used by Firebase
+              App Check to verify that requests originate from the genuine web
+              app. No challenge is shown to users. Google&apos;s{" "}
+              <a
+                href="https://policies.google.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:text-accent-light transition-colors duration-150 underline underline-offset-2"
+              >
+                privacy policy
+              </a>{" "}
+              applies.
+            </li>
+          </ul>
         </section>
 
         <section>

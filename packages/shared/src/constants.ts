@@ -26,4 +26,5 @@ export const LOCAL_STORAGE_KEYS = {
   uuid: "chainku.uuid",
   onboardingDismissed: "chainku.onboardingDismissed",
   syllableCounterEnabled: "chainku.syllableCounterEnabled",
+  proposals: "chainku.proposals",
 } as const;

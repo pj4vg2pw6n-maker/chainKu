@@ -8,6 +8,7 @@
     "dev": "pnpm run build:shared && pnpm --filter web dev",
     "lint": "pnpm --filter web lint && pnpm --filter functions lint",
     "typecheck": "pnpm --filter web typecheck && pnpm --filter functions typecheck && pnpm --filter @chainku/shared typecheck",
-    "emulators": "pnpm run build:shared && firebase emulators:start --project demo-chainku"
+    "emulators": "pnpm run build:shared && firebase emulators:start --project demo-chainku",
+    "test:rules": "pnpm --filter @chainku/rules-test test"
   }
 }

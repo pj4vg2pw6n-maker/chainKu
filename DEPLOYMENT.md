@@ -90,6 +90,20 @@ Deploy indexes first (they can take several minutes to build):
 firebase deploy --only firestore:rules,firestore:indexes --project chainku
 ```
 
+### 5a. Enable Firestore TTL on `rate_limits`
+
+`rate_limits` documents carry an `expiresAt` field. Firestore TTL must be activated as an explicit collection-group policy — setting the field alone does nothing without this step.
+
+```bash
+gcloud firestore fields ttls update expiresAt \
+  --collection-group=rate_limits \
+  --project=chainku
+```
+
+Or via the Firebase Console: **Firestore → Data → rate_limits → Field → expiresAt → Enable TTL**.
+
+Without this step, rate-limit documents accumulate indefinitely (functionally harmless since old hourly-slot keys are never queried, but storage grows unboundedly).
+
 ---
 
 ## Step 6 — First manual deployment
@@ -266,6 +280,7 @@ If the score is below 90, check:
 - [ ] `TURNSTILE_SECRET_KEY` set via `firebase functions:secrets:set`
 - [ ] All `NEXT_PUBLIC_*` env vars filled in `.env.local` for local production builds
 - [ ] `onProposalCreated` uncommented in `functions/src/index.ts` before deploying
+- [ ] Firestore TTL policy enabled on `rate_limits.expiresAt` (see Step 5a)
 - [ ] Firestore indexes built (check Firebase Console → Firestore → Indexes)
 - [ ] First deploy completed and smoke-tested (create → propose → choose → archive flow)
 - [ ] App Check switched from **Monitoring** to **Enforced** after confirming the app works

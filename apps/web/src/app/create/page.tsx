@@ -47,7 +47,7 @@ export default function CreatePage() {
         turnstileToken: t,
         callerUuid: anonymousId,
       });
-      router.push(`/haiku/${haikuId}`);
+      router.push(`/haiku/${haikuId}?created=1`);
     } catch (err) {
       setError(getFriendlyError(err));
       turnstileRef.current?.reset();

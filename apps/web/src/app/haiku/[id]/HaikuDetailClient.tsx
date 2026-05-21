@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { HaikuLines } from "@/components/HaikuLines";
@@ -63,7 +63,11 @@ function ChoiceSection({
   }
 
   if (!proposals?.length) {
-    return <p className="text-sm text-gray-muted">No proposals yet.</p>;
+    return (
+      <p className="text-sm text-gray-muted">
+        No proposals were submitted. This haiku will be removed automatically.
+      </p>
+    );
   }
 
   return (
@@ -213,6 +217,8 @@ function ActionSection({
 
 export function HaikuDetailClient() {
   const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const justCreated = searchParams.get("created") === "1";
   const { data: haiku, isLoading, error } = useHaiku(id ?? "");
   const anonymousId = useAnonymousId();
 
@@ -247,6 +253,21 @@ export function HaikuDetailClient() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-12 flex flex-col gap-10">
+      <Link
+        href="/"
+        className="self-start text-sm text-gray-ui hover:text-[#111111] transition-colors duration-150
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+      >
+        ← All haiku
+      </Link>
+
+      {justCreated && (
+        <div className="px-4 py-3 rounded-card border border-accent/30 bg-accent/5 text-sm text-accent">
+          Your haiku has been started. Proposals will appear here after the
+          window closes.
+        </div>
+      )}
+
       <HaikuLines
         line1={haiku.line1.text}
         line2={haiku.line2?.text ?? null}

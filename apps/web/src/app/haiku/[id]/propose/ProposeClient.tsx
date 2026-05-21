@@ -1,6 +1,8 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { FirebaseError } from "firebase/app";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
 import { SyllableCounter } from "@/components/SyllableCounter";
@@ -80,6 +82,16 @@ export function ProposeClient() {
       markProposed(haiku.id, forLine);
       router.push(`/haiku/${id}`);
     } catch (err) {
+      // If the server says already-exists, sync localStorage and redirect so
+      // the detail page shows the correct "already submitted" state.
+      if (
+        err instanceof FirebaseError &&
+        err.code.replace("functions/", "") === "already-exists"
+      ) {
+        markProposed(haiku.id, forLine);
+        router.replace(`/haiku/${id}`);
+        return;
+      }
       setError(getFriendlyError(err));
       turnstileRef.current?.reset();
       setToken(IS_EMULATOR ? "EMULATOR_BYPASS" : null);
@@ -139,6 +151,14 @@ export function ProposeClient() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-12 flex flex-col gap-8">
+      <Link
+        href={`/haiku/${id}`}
+        className="self-start text-sm text-gray-ui hover:text-[#111111] transition-colors duration-150
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+      >
+        ← Back
+      </Link>
+
       {/* Previous canonical lines, dimmed */}
       <div className="flex flex-col gap-0.5 opacity-40 select-none">
         <p className="font-serif text-xl leading-snug">{haiku.line1.text}</p>

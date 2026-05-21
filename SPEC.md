@@ -101,13 +101,22 @@ All configurable via `config/global` document in Firestore.
   - Distinguish "your proposal" from others in your own UI
 - The UUID is **never shown publicly** and is not associated with any personal data.
 - Clearing localStorage resets identity (acceptable trade-off).
+- Because there is no Firebase Auth, the UUID is passed explicitly as `callerUuid` in the body of every callable Cloud Function invocation. The server validates it against the Zod input schema.
+- All `localStorage` keys used by the client:
+
+| Key | Purpose |
+|---|---|
+| `chainku.uuid` | Anonymous identifier |
+| `chainku.onboardingDismissed` | Whether the welcome strip has been dismissed |
+| `chainku.syllableCounterEnabled` | User's syllable counter preference |
+| `chainku.proposals` | Local record of which haiku lines the user has proposed (used for detail-page UX) |
 
 ### 2.6 Syllable counter (English only)
 
 - An optional, **non-blocking** indicator below the input shows estimated syllable count.
 - Target: 5 / 7 / 5 (orientative, not enforced).
 - Toggleable; preference stored in localStorage.
-- Use a small library like `syllable` (npm) for English estimation.
+- Syllable estimation uses an in-house vowel-group heuristic (silent-ending stripping + vowel-group counting). The `syllable` npm package was considered but not used due to ESM incompatibility with the Next.js static export build at the time of implementation. The heuristic is adequate for orientative guidance.
 
 ---
 
@@ -314,7 +323,7 @@ After the choice window closes (or a proposal is chosen), all proposals in the s
 }
 ```
 
-Read once at app start, cached client-side.
+**v1.0 implementation note:** The client does not read this document at runtime. It uses `CONFIG_DEFAULTS` from `@chainku/shared` (hardcoded constants matching the defaults above). Cloud Functions read `config/global` on first invocation per instance and cache the result in module scope, falling back to `CONFIG_DEFAULTS` if the document is absent or the read fails. The Firestore security rules allow client reads of this path, so client-side consumption can be added in a future version without a rules change.
 
 ### 4.4 Firestore indexes
 
@@ -325,22 +334,24 @@ Composite indexes required (declared in `firestore.indexes.json`):
 
 ### 4.5 Cloud Functions
 
+All callable functions receive `callerUuid` (the client's anonymous UUID) as an explicit body parameter in addition to the parameters listed below. There is no Firebase Auth; the UUID serves as the caller identity and is validated by the Zod input schema on every call.
+
 #### Callable (HTTPS)
 
-1. **`createHaiku(line1Text, turnstileToken)`**
+1. **`createHaiku(line1Text, turnstileToken, callerUuid)`**
    - Validate: length, content, Turnstile, App Check, rate limit (IP + UUID).
    - Create haiku document in `awaiting_line_2`.
    - Set `currentDeadline = now + 24h`.
    - Return haiku ID.
 
-2. **`submitProposal(haikuId, text, turnstileToken)`**
+2. **`submitProposal(haikuId, text, turnstileToken, callerUuid)`**
    - Validate: haiku exists and is in `awaiting_line_*`, length, content, Turnstile, App Check, rate limit, "one per user per line".
    - Initiator cannot propose on their own haiku.
    - Create proposal in subcollection.
    - Increment `proposalCount` on haiku.
    - If `proposalCount === maxProposalsPerLine`, transition to `awaiting_choice_*` immediately (set new deadline).
 
-3. **`chooseProposal(haikuId, proposalId)`**
+3. **`chooseProposal(haikuId, proposalId, callerUuid)`**
    - Validate: caller UUID matches `initiatorId`, haiku is in `awaiting_choice_*`.
    - Promote proposal to `line2` or `line3` with `chosenBy: 'initiator'`.
    - Delete all proposals in subcollection.
@@ -368,11 +379,10 @@ Composite indexes required (declared in `firestore.indexes.json`):
 
 - **All client writes go through Cloud Functions.** Firestore rules deny all client writes directly.
 - **Reads from clients are allowed** for: `haikus` (all), `config/global` (read-only). Everything else: denied.
-- **Proposals subcollection**: client reads denied. Only Cloud Functions can read; Functions return appropriate slices to the client (e.g., `getProposalsForChoice` callable that checks initiator role).
-  - **Note**: this means the initiator's choice screen needs a callable to fetch proposals. Add a function `getProposalsForChoice(haikuId)` or include in `chooseProposal` flow. To keep it simple, add as 6th callable.
+- **Proposals subcollection**: client reads denied. Only Cloud Functions can read; Functions return appropriate slices to the client via `getProposalsForChoice(haikuId, callerUuid)`, which verifies the caller is the initiator and returns proposals in randomized order with `authorId` stripped.
 - **App Check** required on all callables.
 - **Turnstile** validated server-side in `createHaiku` and `submitProposal`.
-- **Rate limits** (per IP and per UUID, sliding hourly window):
+- **Rate limits** (per IP and per UUID, fixed hourly window — UTC hour slot, not sliding):
   - Max 5 new haiku per hour
   - Max 30 proposals per hour
   - Max 60 reads via callable per hour (for `getProposalsForChoice`)
@@ -384,7 +394,7 @@ Composite indexes required (declared in `firestore.indexes.json`):
 3. `chooseProposal` (callable)
 4. `getProposalsForChoice` (callable, initiator-only)
 5. `processTimeouts` (scheduled, every 5 min)
-6. `onProposalCreated` (Firestore trigger, logging only)
+6. `onProposalCreated` (Firestore trigger, logging only — disabled in local emulator due to firebase-tools#2633; must be enabled before first production deploy)
 
 ### 4.8 Client data fetching
 

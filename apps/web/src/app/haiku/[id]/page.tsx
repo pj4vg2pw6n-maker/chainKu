@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { HaikuDetailClient } from "./HaikuDetailClient";
 
 // Placeholder so Next.js accepts the dynamic route in static export mode.
@@ -7,5 +8,9 @@ export function generateStaticParams() {
 }
 
 export default function HaikuDetailPage() {
-  return <HaikuDetailClient />;
+  return (
+    <Suspense>
+      <HaikuDetailClient />
+    </Suspense>
+  );
 }

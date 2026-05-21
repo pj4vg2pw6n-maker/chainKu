@@ -2,12 +2,13 @@ import { onCall, CallableRequest, HttpsError } from "firebase-functions/v2/https
 import * as logger from "firebase-functions/logger";
 import { db } from "../lib/admin";
 import { Timestamp } from "firebase-admin/firestore";
-import { COLLECTIONS, CONFIG_DEFAULTS, submitProposalInputSchema } from "../lib/constants";
+import { COLLECTIONS, submitProposalInputSchema } from "../lib/constants";
 import { requireAppCheck } from "../lib/appCheck";
 import { verifyTurnstile } from "../lib/turnstile";
 import { enforceRateLimit } from "../lib/rateLimit";
 import { parseInput } from "../lib/validation";
 import { turnstileSecretKey } from "../lib/params";
+import { getConfig } from "../lib/config";
 
 function clientIp(request: CallableRequest): string {
   const forwarded = request.rawRequest.headers["x-forwarded-for"];
@@ -28,6 +29,7 @@ export const submitProposal = onCall({ secrets: [turnstileSecretKey] }, async (r
   await verifyTurnstile(turnstileToken, ip);
   await enforceRateLimit("submitProposal", ip, callerUuid);
 
+  const config = await getConfig();
   const haikuRef = db.collection(COLLECTIONS.haikus).doc(haikuId);
   const proposalsRef = haikuRef.collection(COLLECTIONS.proposals);
 
@@ -72,7 +74,7 @@ export const submitProposal = onCall({ secrets: [turnstileSecretKey] }, async (r
       );
     }
 
-    const maxProposals: number = CONFIG_DEFAULTS.maxProposalsPerLine;
+    const maxProposals: number = config.maxProposalsPerLine;
 
     if (haiku.proposalCount >= maxProposals) {
       throw new HttpsError(
@@ -103,7 +105,7 @@ export const submitProposal = onCall({ secrets: [turnstileSecretKey] }, async (r
       const nextStatus = forLine === 2 ? "awaiting_choice_2" : "awaiting_choice_3";
       update.status = nextStatus;
       update.currentDeadline = Timestamp.fromMillis(
-        now.toMillis() + CONFIG_DEFAULTS.choiceWindowHours * 60 * 60 * 1000
+        now.toMillis() + config.choiceWindowHours * 60 * 60 * 1000
       );
       logger.info("submitProposal: max proposals reached, closing early", {
         haikuId,
