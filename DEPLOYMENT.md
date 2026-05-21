@@ -9,6 +9,7 @@ This guide covers everything needed to take ChainKu from the repo to a live Fire
 - **Firebase CLI** ≥ 13: `npm install -g firebase-tools`
 - **Node.js** 22
 - **pnpm** 9: `npm install -g pnpm@9`
+- **gcloud CLI** (optional, for Step 5a TTL setup): [install guide](https://cloud.google.com/sdk/docs/install) — the Firebase Console alternative is available if you prefer not to install it
 - A **Google Cloud / Firebase account** with billing enabled (required for Cloud Functions, reCAPTCHA Enterprise, and Secrets Manager)
 - A **Cloudflare account** for Turnstile
 
@@ -22,6 +23,22 @@ This guide covers everything needed to take ChainKu from the repo to a live Fire
 4. Enable **Blaze (pay-as-you-go)** billing — required for Cloud Functions v2 and Secret Manager.
 5. Navigate to **Firestore Database** → Create database → Start in **production mode** → choose a region (e.g. `us-central1`).
 6. Enable the **Cloud Firestore API** and **Cloud Functions API** in Google Cloud Console if prompted.
+
+### 1a. Register a web app and get SDK config
+
+You need to register a web app within the Firebase project to obtain the `NEXT_PUBLIC_FIREBASE_*` config values used by the client SDK.
+
+1. In Firebase Console → **Project settings** (gear icon) → **Your apps** → click **Add app** → choose **Web** (`</>`).
+2. App nickname: **ChainKu** (display only).
+3. Do **not** tick "Also set up Firebase Hosting" — hosting is deployed separately.
+4. Click **Register app**.
+5. Under **SDK setup and configuration**, choose **Config** and copy the values — you will need them in Step 6a:
+
+```
+apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId
+```
+
+> **Note on the Firebase API key:** The `apiKey` value is a public identifier — it is intentionally visible in the browser bundle. Firebase's security model relies on Firestore rules and App Check to protect data, not on keeping this key secret. It is safe (and expected) for it to appear in client-side code.
 
 ---
 
@@ -133,6 +150,14 @@ export * from "./triggers/onProposalCreated";
 ```
 
 This trigger is disabled locally due to an emulator bug (firebase-tools#2633) but works correctly in production.
+
+**Important:** commit this change before deploying so that future CI pushes to `main` also deploy with the trigger enabled:
+
+```bash
+git add functions/src/index.ts
+git commit -m "enable onProposalCreated trigger for production"
+git push
+```
 
 ### 6c. Build and deploy
 
@@ -287,6 +312,7 @@ If the score is below 90, check:
 - [ ] GitHub Actions secrets added (all 9 secrets listed in Step 7b)
 - [ ] Security audit completed (Firestore writes blocked, unauthenticated function calls blocked)
 - [ ] Lighthouse ≥ 90 Performance on home and detail pages
+- [ ] `NEXT_PUBLIC_TURNSTILE_SITE_KEY` confirmed non-empty in the deployed build (open browser DevTools → Sources and search for `1x00000000000000000000AA` — if found, the real key was not injected and all form submissions will fail)
 - [ ] Contact page updated with a real email address (`apps/web/src/app/contact/page.tsx`)
 - [ ] Privacy policy reviewed for accuracy
 - [ ] Custom domain configured in Firebase Hosting (optional)
