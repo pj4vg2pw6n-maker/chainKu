@@ -37,3 +37,6 @@ Thumbs.db
 
 # TypeScript
 *.tsbuildinfo
+
+# Local-only docs (never push to GitHub)
+DEPLOYMENT.md
