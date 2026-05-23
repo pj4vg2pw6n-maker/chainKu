@@ -11,6 +11,7 @@ apps/web/.env*.local
 .firebase/
 functions/lib/
 functions/.env
+.functions-build/
 
 # Environment
 .env
