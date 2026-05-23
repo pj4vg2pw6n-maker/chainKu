@@ -8,4 +8,4 @@ export * from "./scheduled/processTimeouts";
 // the emulator when host is 0.0.0.0 (firebase/firebase-tools#2633). The trigger
 // has no side-effects and is safe to re-enable directly in production by
 // uncommenting the line below before deployment.
-// export * from "./triggers/onProposalCreated";
+export * from "./triggers/onProposalCreated";
