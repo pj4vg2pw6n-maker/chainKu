@@ -32,10 +32,10 @@ if (getApps().length === 0) {
 
   if (USE_EMULATOR) {
     connectFirestoreEmulator(getFirestore(newApp), "127.0.0.1", 8080);
-    connectFunctionsEmulator(getFunctions(newApp), "127.0.0.1", 5001);
+    connectFunctionsEmulator(getFunctions(newApp, "europe-west1"), "127.0.0.1", 5001);
   }
 }
 
 export const app = getApp();
 export const db = getFirestore(app);
-export const functions = getFunctions(app);
+export const functions = getFunctions(app, "europe-west1");
