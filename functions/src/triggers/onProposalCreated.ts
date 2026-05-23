@@ -1,16 +1,17 @@
-import * as v1 from "firebase-functions/v1";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 
-// v1 trigger avoids Eventarc registration, which fails in the local emulator.
-// Logging-only per SPEC §4.5.5 — no v2-specific features needed.
-export const onProposalCreated = v1
-  .region("europe-west1")
-  .firestore.document("haikus/{haikuId}/proposals/{proposalId}")
-  .onCreate((snapshot, context) => {
-    const data = snapshot.data();
+// v2 required: v1 Firestore triggers don't support multi-region databases (eur3).
+// Note: Eventarc registration may fail in the local emulator (firebase-tools#2633)
+// — keep this export commented out during local development.
+export const onProposalCreated = onDocumentCreated(
+  "haikus/{haikuId}/proposals/{proposalId}",
+  (event) => {
+    const data = event.data?.data();
     logger.info("onProposalCreated", {
-      haikuId: context.params.haikuId,
-      proposalId: context.params.proposalId,
+      haikuId: event.params.haikuId,
+      proposalId: event.params.proposalId,
       forLine: data?.forLine,
     });
-  });
+  }
+);
