@@ -55,4 +55,4 @@ jobs:
       - name: Deploy to Firebase
         # Pinned to a known-good major to avoid silent supply-chain risk from
         # `@latest`. Review and bump deliberately when upgrading.
-        run: npx --yes firebase-tools@13 deploy --only hosting,functions,firestore:rules,firestore:indexes --project chainku
+        run: npx --yes firebase-tools@13 deploy --only hosting,functions,firestore:rules,firestore:indexes --project chainku-656b3
