@@ -1,3 +1,6 @@
+import { setGlobalOptions } from "firebase-functions/v2";
+setGlobalOptions({ region: "europe-west1" });
+
 export * from "./callable/createHaiku";
 export * from "./callable/submitProposal";
 export * from "./callable/chooseProposal";
