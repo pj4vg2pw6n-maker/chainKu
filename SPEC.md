@@ -2,7 +2,7 @@
 
 **Version:** 1.0 (MVP)
 **Status:** Pre-development
-**Last updated:** 2026-05-06
+**Last updated:** 2026-05-24
 
 This document is the single source of truth for the ChainKu MVP. It describes what the product is, how it behaves, and how it is built. Anything not covered here is out of scope for v1.0.
 
