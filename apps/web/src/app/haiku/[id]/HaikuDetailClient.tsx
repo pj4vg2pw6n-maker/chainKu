@@ -179,7 +179,7 @@ function ActionSection({
           Proposals open ·{" "}
           <CountdownLabel deadline={currentDeadline} className="text-gray-muted" />
         </p>
-        <Link
+        <a
           href={`/haiku/${haiku.id}/propose`}
           className="inline-flex items-center justify-center self-start px-4 py-2 rounded-card
             bg-accent text-white text-sm font-medium font-sans
@@ -187,7 +187,7 @@ function ActionSection({
             focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           Propose a line
-        </Link>
+        </a>
       </div>
     );
   }

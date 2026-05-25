@@ -38,7 +38,7 @@ function CardSkeleton({ large = false }: { large?: boolean }) {
 
 function InProgressCard({ haiku }: { haiku: Haiku }) {
   return (
-    <Link
+    <a
       href={`/haiku/${haiku.id}`}
       className="block rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
     >
@@ -53,7 +53,7 @@ function InProgressCard({ haiku }: { haiku: Haiku }) {
           <CountdownLabel deadline={haiku.currentDeadline} />
         </p>
       </Card>
-    </Link>
+    </a>
   );
 }
 
@@ -67,7 +67,7 @@ function ArchiveCard({ haiku }: { haiku: Haiku }) {
     : null;
 
   return (
-    <Link
+    <a
       href={`/haiku/${haiku.id}`}
       className="block rounded-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
     >
@@ -84,7 +84,7 @@ function ArchiveCard({ haiku }: { haiku: Haiku }) {
           </p>
         )}
       </Card>
-    </Link>
+    </a>
   );
 }
 

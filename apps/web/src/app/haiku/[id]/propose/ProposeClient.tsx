@@ -1,7 +1,6 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useParams } from "next/navigation";
 import { FirebaseError } from "firebase/app";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
@@ -19,7 +18,6 @@ const IS_EMULATOR = process.env.NEXT_PUBLIC_USE_EMULATOR === "true";
 
 export function ProposeClient() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const anonymousId = useAnonymousId();
   const { data: haiku, isLoading, error: fetchError } = useHaiku(id ?? "");
 
@@ -48,9 +46,9 @@ export function ProposeClient() {
       haiku.initiatorId === anonymousId ||
       hasProposed(haiku.id, forLine)
     ) {
-      router.replace(`/haiku/${id}`);
+      window.location.replace(`/haiku/${id}`);
     }
-  }, [haiku, anonymousId, forLine, id, router]);
+  }, [haiku, anonymousId, forLine, id]);
 
   const charLimit = CONFIG_DEFAULTS.maxLine23Length;
   const syllableTarget = forLine === 2 ? 7 : 5;
@@ -80,7 +78,7 @@ export function ProposeClient() {
         callerUuid: anonymousId,
       });
       markProposed(haiku.id, forLine);
-      router.push(`/haiku/${id}`);
+      window.location.href = `/haiku/${id}`;
     } catch (err) {
       // If the server says already-exists, sync localStorage and redirect so
       // the detail page shows the correct "already submitted" state.
@@ -89,7 +87,7 @@ export function ProposeClient() {
         err.code.replace("functions/", "") === "already-exists"
       ) {
         markProposed(haiku.id, forLine);
-        router.replace(`/haiku/${id}`);
+        window.location.replace(`/haiku/${id}`);
         return;
       }
       setError(getFriendlyError(err));
@@ -151,13 +149,13 @@ export function ProposeClient() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-12 flex flex-col gap-8">
-      <Link
+      <a
         href={`/haiku/${id}`}
         className="self-start text-sm text-gray-ui hover:text-[#111111] transition-colors duration-150
           focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
       >
         ← Back
-      </Link>
+      </a>
 
       {/* Previous canonical lines, dimmed */}
       <div className="flex flex-col gap-0.5 opacity-40 select-none">
