@@ -10,13 +10,14 @@ export interface TurnstileHandle {
 interface Props {
   onToken: (token: string) => void;
   onExpire: () => void;
+  onError: () => void;
 }
 
 const siteKey =
   process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "1x00000000000000000000AA";
 
 export const TurnstileField = forwardRef<TurnstileHandle, Props>(
-  function TurnstileField({ onToken, onExpire }, ref) {
+  function TurnstileField({ onToken, onExpire, onError }, ref) {
     const innerRef = useRef<TurnstileInstance>(null);
 
     useImperativeHandle(ref, () => ({
@@ -32,9 +33,10 @@ export const TurnstileField = forwardRef<TurnstileHandle, Props>(
       <Turnstile
         ref={innerRef}
         siteKey={siteKey}
-        options={{ size: "invisible", execution: "render" }}
+        options={{ size: "invisible", execution: "execute" }}
         onSuccess={onToken}
         onExpire={onExpire}
+        onError={onError}
       />
     );
   }

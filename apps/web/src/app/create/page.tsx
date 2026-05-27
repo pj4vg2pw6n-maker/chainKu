@@ -35,6 +35,14 @@ export default function CreatePage() {
     setPendingSubmit(false);
   }
 
+  function handleTurnstileError() {
+    setToken(IS_EMULATOR ? "EMULATOR_BYPASS" : null);
+    setPendingSubmit(false);
+    setSubmitting(false);
+    setError("Verification could not be completed. Please try again.");
+    turnstileRef.current?.reset();
+  }
+
   async function doSubmit(t: string) {
     if (!anonymousId) return;
     setSubmitting(true);
@@ -108,6 +116,7 @@ export default function CreatePage() {
           ref={turnstileRef}
           onToken={handleToken}
           onExpire={handleExpire}
+          onError={handleTurnstileError}
         />
 
         <Button

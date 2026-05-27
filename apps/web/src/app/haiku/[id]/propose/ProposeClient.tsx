@@ -66,6 +66,14 @@ export function ProposeClient() {
     setPendingSubmit(false);
   }
 
+  function handleTurnstileError() {
+    setToken(IS_EMULATOR ? "EMULATOR_BYPASS" : null);
+    setPendingSubmit(false);
+    setSubmitting(false);
+    setError("Verification could not be completed. Please try again.");
+    turnstileRef.current?.reset();
+  }
+
   async function doSubmit(t: string) {
     if (!anonymousId || !haiku || !forLine) return;
     setSubmitting(true);
@@ -204,6 +212,7 @@ export function ProposeClient() {
           ref={turnstileRef}
           onToken={handleToken}
           onExpire={handleExpire}
+          onError={handleTurnstileError}
         />
 
         <Button
