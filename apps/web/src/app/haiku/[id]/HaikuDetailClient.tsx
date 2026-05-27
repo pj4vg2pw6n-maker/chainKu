@@ -124,9 +124,13 @@ function CopyLinkButton({ haikuId }: { haikuId: string }) {
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(`${window.location.origin}/haiku/${haikuId}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/haiku/${haikuId}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable (permissions, backgrounded app, etc.) — silent no-op.
+    }
   }
 
   return (
