@@ -1,6 +1,5 @@
 "use client";
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
 import { SyllableCounter } from "@/components/SyllableCounter";
@@ -13,7 +12,6 @@ import { CONFIG_DEFAULTS } from "@chainku/shared";
 const IS_EMULATOR = process.env.NEXT_PUBLIC_USE_EMULATOR === "true";
 
 export default function CreatePage() {
-  const router = useRouter();
   const anonymousId = useAnonymousId();
   const [text, setText] = useState("");
   const [token, setToken] = useState<string | null>(IS_EMULATOR ? "EMULATOR_BYPASS" : null);
@@ -47,7 +45,7 @@ export default function CreatePage() {
         turnstileToken: t,
         callerUuid: anonymousId,
       });
-      router.push(`/haiku/${haikuId}?created=1`);
+      window.location.href = `/haiku/${haikuId}?created=1`;
     } catch (err) {
       setError(getFriendlyError(err));
       turnstileRef.current?.reset();
