@@ -11,7 +11,7 @@ import { turnstileSecretKey } from "../lib/params";
 import { getConfig } from "../lib/config";
 import { clientIp } from "../lib/clientIp";
 
-export const createHaiku = onCall({ secrets: [turnstileSecretKey], maxInstances: 10 }, async (request) => {
+export const createHaiku = onCall({ secrets: [turnstileSecretKey], maxInstances: 10, enforceAppCheck: true }, async (request) => {
   logger.info("step: appCheck");
   requireAppCheck(request);
 

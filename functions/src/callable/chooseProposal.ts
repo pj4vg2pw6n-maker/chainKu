@@ -18,7 +18,7 @@ async function deleteProposals(
   await batch.commit();
 }
 
-export const chooseProposal = onCall({ maxInstances: 10 }, async (request) => {
+export const chooseProposal = onCall({ maxInstances: 10, enforceAppCheck: true }, async (request) => {
   requireAppCheck(request);
 
   const { haikuId, proposalId, callerUuid } = parseInput(

@@ -11,7 +11,7 @@ import { turnstileSecretKey } from "../lib/params";
 import { getConfig } from "../lib/config";
 import { clientIp } from "../lib/clientIp";
 
-export const submitProposal = onCall({ secrets: [turnstileSecretKey], maxInstances: 10 }, async (request) => {
+export const submitProposal = onCall({ secrets: [turnstileSecretKey], maxInstances: 10, enforceAppCheck: true }, async (request) => {
   requireAppCheck(request);
 
   const { haikuId, text, turnstileToken, callerUuid } = parseInput(

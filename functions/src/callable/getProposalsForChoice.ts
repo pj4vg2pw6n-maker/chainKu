@@ -15,7 +15,7 @@ function shuffle<T>(arr: T[]): T[] {
   return arr;
 }
 
-export const getProposalsForChoice = onCall({ maxInstances: 10 }, async (request) => {
+export const getProposalsForChoice = onCall({ maxInstances: 10, enforceAppCheck: true }, async (request) => {
   requireAppCheck(request);
 
   const { haikuId, callerUuid } = parseInput(
