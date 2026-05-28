@@ -98,11 +98,37 @@ export default function PrivacyPage() {
           <h2 className="font-sans font-semibold text-[#111111] mb-2">
             CAPTCHA (Cloudflare Turnstile)
           </h2>
-          <p>
+          <p className="mb-3">
             Form submissions are protected by Cloudflare Turnstile, a
-            privacy-friendly CAPTCHA that does not use cross-site tracking
-            cookies or device fingerprinting. Cloudflare&apos;s own privacy
-            policy governs their service.
+            privacy-friendly CAPTCHA. ChainKu uses the invisible variant: no
+            challenge or checkbox is shown, and the check runs in the
+            background to verify that submissions come from a real browser
+            rather than a bot. Turnstile does not use cross-site tracking
+            cookies or device fingerprinting.
+          </p>
+          <p>
+            To make this assessment, Turnstile processes a limited set of
+            signals from your browser, including your IP address, request
+            headers, and minor interaction data. Cloudflare acts as a data
+            processor on our behalf for this purpose. See Cloudflare&apos;s{" "}
+            <a
+              href="https://www.cloudflare.com/privacypolicy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent hover:text-accent-light transition-colors duration-150 underline underline-offset-2"
+            >
+              privacy policy
+            </a>{" "}
+            and the{" "}
+            <a
+              href="https://www.cloudflare.com/turnstile-privacy-policy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent hover:text-accent-light transition-colors duration-150 underline underline-offset-2"
+            >
+              Turnstile privacy addendum
+            </a>{" "}
+            for full details.
           </p>
         </section>
 
